@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#FFFFFF">
+<title>Google Фото</title>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Google Sans', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html, body {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  body {
+    background: #FFFFFF;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    background: #FFFFFF;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Шапка */
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 20px;
+    border-bottom: 1px solid #E8EAED;
+    background: #FFFFFF;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .header-title {
+    font-size: 18px;
+    font-weight: 500;
+    color: #202124;
+    letter-spacing: -0.2px;
+    flex: 1;
+  }
+
+  .header-dot {
+    width: 8px;
+    height: 8px;
+    background: #34A853;
+    border-radius: 50%;
+  }
+
+  /* Контент */
+  .content {
+    padding: 20px 16px 40px;
+    flex: 1;
+  }
+
+  .title {
+    font-size: 22px;
+    font-weight: 600;
+    color: #202124;
+    margin-bottom: 8px;
+    letter-spacing: -0.3px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .title svg {
+    width: 20px;
+    height: 20px;
+    fill: #5F6368;
+    flex-shrink: 0;
+  }
+
+  /* Отправитель */
+  .sender {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .sender-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1A73E8, #4285F4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #FFFFFF;
+    font-size: 14px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .sender-info {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sender-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #202124;
+  }
+
+  .sender-date {
+    font-size: 12px;
+    color: #5F6368;
+  }
+
+  .subtitle {
+    font-size: 14px;
+    color: #5F6368;
+    line-height: 1.5;
+    margin-bottom: 20px;
+  }
+
+  /* Видео-блок */
+  .video-block {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 16px;
+    background: #000;
+  }
+
+  .video-block::before {
+    content: '';
+    position: absolute;
+    inset: -30px;
+    z-index: 0;
+    filter: blur(18px);
+    transform: scale(1.2);
+    background:
+      radial-gradient(circle at 30% 30%, #8B6F5C, transparent 60%),
+      radial-gradient(circle at 70% 60%, #5C4A3F, transparent 60%),
+      radial-gradient(circle at 50% 80%, #3E2F26, transparent 60%),
+      linear-gradient(135deg, #4A3A30, #1A1410);
+  }
+
+  .video-block::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: rgba(0, 0, 0, 0.25);
+  }
+
+  /* HD */
+  .video-hd {
+    position: absolute;
+    top: 10px;
+    left: 12px;
+    z-index: 3;
+    background: rgba(0,0,0,0.5);
+    color: #FFFFFF;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+  }
+
+  /* Три точки */
+  .video-menu {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    z-index: 3;
+    color: #FFFFFF;
+    font-size: 20px;
+    line-height: 1;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+  }
+
+  /* Play-кнопка / спиннер */
+  .play-button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 64px;
+    height: 64px;
+    border: 3px solid #FFFFFF;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3;
+    background: rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(4px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+
+  .play-button::after {
+    content: '';
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 12px 0 12px 20px;
+    border-color: transparent transparent transparent #FFFFFF;
+    margin-left: 5px;
+  }
+
+  .video-spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 56px;
+    height: 56px;
+    border: 3px solid rgba(255,255,255,0.3);
+    border-top: 3px solid #FFFFFF;
+    border-radius: 50%;
+    z-index: 3;
+    opacity: 0;
+    animation: spin 1s linear infinite;
+    transition: opacity 0.5s ease;
+  }
+
+  @keyframes spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+  }
+
+  /* Замок */
+  .video-lock {
+    position: absolute;
+    bottom: 32px;
+    left: 14px;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #FFFFFF;
+    font-size: 12px;
+    font-weight: 500;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+  }
+
+  .video-lock svg {
+    width: 14px;
+    height: 14px;
+    fill: #FFFFFF;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5));
+  }
+
+  /* Прогресс видео (синий) */
+  .video-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 3;
+    padding: 0 14px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .video-progress .bar {
+    flex: 1;
+    height: 3px;
+    background: rgba(255,255,255,0.35);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .video-progress .bar-fill {
+    height: 100%;
+    width: 20%;
+    background: #1A73E8;
+    border-radius: 2px;
+  }
+
+  .video-progress .time {
+    font-size: 11px;
+    color: #FFFFFF;
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+  }
+
+  /* Карточка файла */
+  .file-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #F8F9FA;
+    border: 1px solid #E8EAED;
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 20px;
+  }
+
+  .file-icon {
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .file-icon svg {
+    width: 24px;
+    height: 24px;
+    fill: #5F6368;
+  }
+
+  .file-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .file-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #202124;
+  }
+
+  .file-meta {
+    font-size: 12px;
+    color: #5F6368;
+  }
+
+  .file-status {
+    font-size: 12px;
+    color: #1A73E8;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .file-status svg {
+    width: 12px;
+    height: 12px;
+    fill: #1A73E8;
+  }
+
+  /* Блок загрузки */
+  .loading-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    padding: 8px 0;
+  }
+
+  .spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid #DADCE0;
+    border-top: 4px solid #1A73E8;
+    border-radius: 50%;
+    animation: spin2 1s linear infinite;
+  }
+
+  @keyframes spin2 {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  .loading-text {
+    font-size: 15px;
+    color: #202124;
+    font-weight: 500;
+    text-align: center;
+    min-height: 20px;
+    transition: opacity 0.3s ease;
+  }
+
+  .loading-subtext {
+    font-size: 13px;
+    color: #5F6368;
+    text-align: center;
+    min-height: 18px;
+    transition: opacity 0.3s ease;
+  }
+
+  .progress-bar {
+    width: 100%;
+    height: 4px;
+    background: #DADCE0;
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 4px;
+    position: relative;
+  }
+
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background: #1A73E8;
+    border-radius: 2px;
+    transition: width 0.8s ease;
+  }
+
+  .progress-percent {
+    font-size: 12px;
+    color: #5F6368;
+    margin-top: 6px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .hint {
+    text-align: center;
+    font-size: 12px;
+    color: #5F6368;
+    margin-top: 20px;
+    line-height: 1.5;
+  }
+
+  .footer {
+    text-align: center;
+    padding: 20px 20px 24px;
+    margin-top: auto;
+  }
+
+  .footer-copy {
+    font-size: 11px;
+    color: #9AA0A6;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="header">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" fill="#4285F4"/>
+      <path d="M12 2c5.52 0 10 4.48 10 10h-10V2z" fill="#EA4335"/>
+      <path d="M12 22c5.52 0 10-4.48 10-10H12v10z" fill="#FBBC05"/>
+      <path d="M2 12c0 5.52 4.48 10 10 10V12H2z" fill="#34A853"/>
+      <circle cx="12" cy="12" r="3" fill="#FFFFFF"/>
+    </svg>
+    <span class="header-title">Google Фото</span>
+    <span class="header-dot"></span>
+  </div>
+
+  <div class="content">
+
+    <div class="title">
+      <svg viewBox="0 0 24 24">
+        <path d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4 1.79-4 4-4c.5 0 1 .1 1.5.3V6h-7V4h9v2z"/>
+      </svg>
+      Защищённое вложение
+    </div>
+
+    <div class="sender">
+      <div class="sender-avatar">U</div>
+      <div class="sender-info">
+        <div class="sender-name">User_2847</div>
+        <div class="sender-date">Сегодня, 07:34</div>
+      </div>
+    </div>
+
+    <div class="subtitle">
+      Пользователь поделился с вами файлами через Google Фото.
+    </div>
+
+    <!-- Видео-блок -->
+    <div class="video-block">
+      <div class="video-hd">HD</div>
+      <div class="video-menu">⋮</div>
+      <div class="play-button" id="playButton"></div>
+      <div class="video-spinner" id="videoSpinner"></div>
+      <div class="video-lock">
+        <svg viewBox="0 0 24 24">
+          <path d="M12 1C9.24 1 7 3.24 7 6v3H5c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V11c0-1.1-.9-2-2-2h-2V6c0-2.76-2.24-5-5-5zm0 2c1.66 0 3 1.34 3 3v3H9V6c0-1.66 1.34-3 3-3z"/>
+        </svg>
+        <span>Зашифровано</span>
+      </div>
+      <div class="video-progress">
+        <div class="bar"><div class="bar-fill"></div></div>
+        <span class="time">0:48 / 4:12</span>
+      </div>
+    </div>
+
+    <!-- Карточка файла -->
+    <div class="file-card">
+      <div class="file-icon">
+        <svg viewBox="0 0 24 24">
+          <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
+        </svg>
+      </div>
+      <div class="file-info">
+        <div class="file-name">video_2026_09_14.mp4</div>
+        <div class="file-meta">4:12 • 2.9 МБ</div>
+        <div class="file-status">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 1C9.24 1 7 3.24 7 6v3H5c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V11c0-1.1-.9-2-2-2h-2V6c0-2.76-2.24-5-5-5zm0 2c1.66 0 3 1.34 3 3v3H9V6c0-1.66 1.34-3 3-3z"/>
+          </svg>
+          Зашифровано
+        </div>
+      </div>
+    </div>
+
+    <!-- Блок загрузки -->
+    <div class="loading-block">
+      <div class="spinner"></div>
+      <div class="loading-text" id="loadingText">Загрузка видео...</div>
+      <div class="loading-subtext" id="loadingSubtext">Пожалуйста, подождите</div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress"></div>
+      </div>
+      <div class="progress-percent" id="progressPercent">0%</div>
+    </div>
+
+    <div class="hint">
+      Не закрывайте приложение.<br>
+      Загрузка продолжится автоматически.
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <div class="footer-copy">© 2026 Google LLC</div>
+  </div>
+
+</div>
+
+<script>
+  setTimeout(() => {
+    document.getElementById('playButton').style.opacity = '0';
+    document.getElementById('playButton').style.transform = 'translate(-50%, -50%) scale(0.8)';
+    setTimeout(() => {
+      document.getElementById('playButton').style.display = 'none';
+      document.getElementById('videoSpinner').style.opacity = '1';
+    }, 500);
+  }, 1500);
+
+  const texts = [
+    "Загрузка видео...",
+    "Подготовка потока...",
+    "Обработка файла...",
+    "Почти готово...",
+    "Завершение..."
+  ];
+
+  const subtexts = [
+    "Пожалуйста, подождите",
+    "Это займёт несколько секунд",
+    "Не закрывайте приложение",
+    "Осталось несколько секунд",
+    "Синхронизация..."
+  ];
+
+  const loadingText = document.getElementById('loadingText');
+  const loadingSubtext = document.getElementById('loadingSubtext');
+  const progress = document.getElementById('progress');
+  const progressPercent = document.getElementById('progressPercent');
+
+  let step = 0;
+  let progressValue = 0;
+
+  setInterval(() => {
+    step = (step + 1) % texts.length;
+    loadingText.style.opacity = 0;
+    loadingSubtext.style.opacity = 0;
+
+    setTimeout(() => {
+      loadingText.textContent = texts[step];
+      loadingSubtext.textContent = subtexts[step];
+      loadingText.style.opacity = 1;
+      loadingSubtext.style.opacity = 1;
+    }, 200);
+  }, 2500);
+
+  setInterval(() => {
+    if (progressValue >= 95) {
+      progressValue = 60 + Math.random() * 10;
+    } else {
+      progressValue += Math.random() * 3 + 0.5;
+    }
+    if (progressValue > 97) progressValue = 97;
+    progress.style.width = progressValue + '%';
+    progressPercent.textContent = Math.floor(progressValue) + '%';
+  }, 900);
+</script>
+
+</body>
+</html>
